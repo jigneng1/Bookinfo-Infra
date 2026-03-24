@@ -1,0 +1,37 @@
+# sonarqube-values.yaml
+monitoringPasscode: "admin"
+community:
+  enabled: true
+ingress:
+  enabled: true
+  hosts:
+    - name: sast-neng.stthi.com
+      path: /
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod 
+  tls:
+    - secretName: sonarqube-tls
+      hosts:
+        - sast-neng.stthi.com
+
+service:
+  type: ClusterIP
+
+persistence:
+  enabled: true
+  size: 10Gi
+
+postgresql:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 10Gi
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: 2
+    memory: 4Gi

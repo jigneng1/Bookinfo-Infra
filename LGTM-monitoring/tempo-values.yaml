@@ -1,0 +1,64 @@
+tempo:
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: "http://my-monitoring-kube-prometh-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+
+  config: |
+    multitenancy_enabled: false
+
+    server:
+      http_listen_port: 3200
+
+    distributor:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: 0.0.0.0:4317
+            http:
+              endpoint: 0.0.0.0:4318
+
+    ingester:
+      max_block_duration: 5m
+
+    metrics_generator:
+      registry:
+        external_labels:
+          source: tempo
+          cluster: bookinfo-workshop
+      storage:
+        path: /var/tempo/generator/wal
+        remote_write:
+          - url: http://my-monitoring-kube-prometh-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
+            send_exemplars: true
+      processor:
+        service_graphs:
+          enabled: true
+        span_metrics:
+          enabled: true
+
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /var/tempo/blocks
+        wal:
+          path: /var/tempo/wal
+
+    overrides:
+      defaults:
+        metrics_generator:
+          processors:
+            - service-graphs
+            - span-metrics
+
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+  interval: 15s
+  additionalLabels:
+    release: my-monitoring
+
+persistence:
+  enabled: true
+  size: 10Gi

@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - grafana-neng.stthi.com  # เปลี่ยนเป็น Domain ของคุณ
+    secretName: grafana-tls  # ชื่อ secret ที่จะใช้เก็บ TLS
+  rules:
+  - host: grafana-neng.stthi.com  # เปลี่ยนเป็น Domain ของคุณ
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-monitoring-grafana  # ชื่อ service จากภาพของคุณ
+            port:
+              number: 80                 # port ของ service

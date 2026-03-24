@@ -1,0 +1,33 @@
+controller:
+  nodeSelector:
+    cloud.google.com/gke-nodepool: core-pool
+
+  ingress:
+    enabled: true
+    hostName: cicd-neng.stthi.com
+    annotations:
+      # หมายเหตุ: ปกติ Bootcamp ของ Opsta มักจะใช้ ingress-nginx 
+      kubernetes.io/ingress.class: nginx
+      # หากระบบมี cert-manager ให้เปิดบรรทัดล่างนี้เพื่อทำ HTTPS อัตโนมัติ (Let's Encrypt)
+      cert-manager.io/cluster-issuer: letsencrypt-prod 
+    tls:
+      - secretName: jenkins-tls
+        hosts:
+          - cicd-neng.stthi.com
+
+agent:
+  enabled: true
+  # 3. บังคับให้ Agent (Runner) ไปรันที่ spot-pool
+  nodeSelector:
+    cloud.google.com/gke-nodepool: runner-pool
+  
+  # 4. อนุญาตให้ Agent ไปลงบน Spot Node ได้ (Bypass GKE Spot Taints)
+  tolerations:
+    - key: "cloud.google.com/gke-provisioning"
+      operator: "Equal"
+      value: "spot"
+      effect: "NoSchedule"
+    - key: "cloud.google.com/gke-spot"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"

@@ -1,0 +1,31 @@
+externalURL: https://registry-neng.stthi.com
+harborAdminPassword: "Sitiporn1"
+
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      # ชื่อ Secret ที่ Cert-Manager จะสร้างใบเซอร์มาเก็บไว้
+      secretName: "harbor-tls-secret" 
+      
+  ingress:
+    hosts:
+      core: registry-neng.stthi.com
+    className: nginx
+    annotations:
+      # enable cermanager
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      
+      # # ⚠️ สำคัญมากสำหรับ Harbor: ปลดล็อคขนาดไฟล์เวลา Push Image
+      # nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      # nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      # nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+
+# ปิด Notary/Trivy ไว้ก่อนเพื่อความรวดเร็วในการติดตั้ง (ถ้าใช้ค่อยเปิดทีหลังได้)
+notary:
+  enabled: false
+trivy:
+  enabled: false
